@@ -76,7 +76,7 @@ def find_n0():
 #print(find_n0())
 
 #print(standard_mult(m1, m2, dim))
-ans = strassen(m1, m2, dim)
+ans = standard_mult(m1, m2, dim)
 
 for i in range(dim): 
   print(ans[i][i])
