@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 import time
+import random
 
 n0 = 9
 dim = int(sys.argv[2])
@@ -73,6 +74,24 @@ def find_n0():
     n0 += 1
   return n0
 
+def gen_graph(p):
+  adj = np.zeros([1024, 1024])
+  for i in range(1023):
+    for j in range(i, 1024): 
+      if random.uniform(0, 1) < p: 
+        adj[i][j] = 1
+        adj[j][i] = 1
+  #print(adj)
+  a2 = strassen(adj, adj, 1024)
+  a3 = strassen(a2, adj, 1024)
+  tot = 0
+  for i in range(1024):
+    tot += a3[i][i]
+  return tot / 6
+
+def calc_triangles():
+  for i in range (1, 6):
+    print(gen_graph(i*.01))
 #print(find_n0())
 
 #print(standard_mult(m1, m2, dim))
@@ -80,4 +99,6 @@ ans = strassen(m1, m2, dim)
 
 for i in range(dim): 
   print(ans[i][i])
+
+calc_triangles()
 
