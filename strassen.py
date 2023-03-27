@@ -6,8 +6,8 @@ n0 = 9
 dim = int(sys.argv[2])
 f = open(sys.argv[3], 'r') 
 
-m1 = np.empty([dim, dim])
-m2 = np.empty([dim, dim])
+m1 = np.empty([dim, dim], dtype=np.int32)
+m2 = np.empty([dim, dim], dtype=np.int32)
 
 for i in range(dim):
   for j in range(dim): 
@@ -45,7 +45,7 @@ def strassen (m, n, d):
     return np.block([[-P2+P4+P5+P6, P1+P2], [P3+P4, P1-P3+P5+P7]])[:d,:d]
 
 def standard_mult(m, n, d): 
-  mn = np.zeros([d, d])
+  mn = np.zeros([d, d], dtype=np.int32)
   for i in range(d): 
     for j in range(d):
       for k in range (d):
