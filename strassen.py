@@ -23,8 +23,6 @@ def strassen (m, n, d):
     return standard_mult(m, n, d)
   else: 
     if d % 2 == 1: 
-      #m = np.concatenate((np.concatenate((m, [np.zeros(d)]), axis=0), np.zeros((d+1, 1))), axis=1)
-      #n = np.concatenate((np.concatenate((n, [np.zeros(d)]), axis=0), np.zeros((d+1, 1))), axis=1)
       m = np.pad(m, pad_width=((0, 1), (0, 1)))
       n = np.pad(n, pad_width=((0, 1), (0, 1)))
     new_d = (d+1)//2
@@ -53,37 +51,35 @@ def standard_mult(m, n, d):
         mn[i][j] += m[i][k] * n[k][j]
   return mn
 
-def test(n): 
-  print(n0)
-  mat1 = np.random.randint(3, size=(n, n))
-  mat2 = np.random.randint(3, size=(n, n))
-  start = time.time()
-  standard_mult(mat1, mat2, n)
-  t1 = time.time() - start
-  start = time.time()
-  strassen(mat1, mat2, n)
-  t2 = time.time() - start
-  print("%f %f" % (t1, t2))
-  return t1 < t2
-
-def find_n0(): 
-  global n0
-  i = 2 
-  while test(i): 
-    i += 1
+def find_n0(beg, end): 
+  global n0 
+  n = n0 + 1
+  for n0 in range (beg, end + 1): 
+    mat1 = np.random.randint(low=-1,high=1, size=(n, n))
+    mat2 = np.random.randint(low=-1,high=1, size=(n, n))
+    start = time.time()
+    standard_mult(mat1, mat2, n)
+    t1 = time.time() - start
+    start = time.time()
+    strassen(mat1, mat2, n)
+    t2 = time.time() - start
+    print("n0: %d, standard: %f, strassen: %f, " % (n0, t1, t2), t2 <= t1)
     n0 += 1
-  return n0
+    n += 1
 
 def gen_graph(p):
   adj = np.zeros([1024, 1024])
   for i in range(1023):
-    for j in range(i, 1024): 
+    for j in range(i + 1, 1024): 
       if random.uniform(0, 1) < p: 
         adj[i][j] = 1
         adj[j][i] = 1
-  #print(adj)
+  print(adj)
+  start = time.time()
   a2 = strassen(adj, adj, 1024)
+  print(time.time() - start)
   a3 = strassen(a2, adj, 1024)
+  print(time.time() - start)
   tot = 0
   for i in range(1024):
     tot += a3[i][i]
@@ -100,5 +96,6 @@ ans = strassen(m1, m2, dim)
 for i in range(dim): 
   print(ans[i][i])
 
-calc_triangles()
+find_n0(1, 100)
+#calc_triangles()
 
