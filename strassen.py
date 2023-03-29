@@ -3,7 +3,8 @@ import sys
 import time
 import random
 
-n0 = 9
+n0 = 70
+flag = int(sys.argv[1])
 dim = int(sys.argv[2])
 f = open(sys.argv[3], 'r') 
 
@@ -51,20 +52,24 @@ def standard_mult(m, n, d):
         mn[i][j] += m[i][k] * n[k][j]
   return mn
 
-def find_n0(beg, end): 
+def find_n0(beg, end, l, h): 
   global n0 
-  n = n0 + 1
   for n0 in range (beg, end + 1): 
-    mat1 = np.random.randint(low=-1,high=1, size=(n, n))
-    mat2 = np.random.randint(low=-1,high=1, size=(n, n))
-    start = time.time()
-    standard_mult(mat1, mat2, n)
-    t1 = time.time() - start
-    start = time.time()
-    strassen(mat1, mat2, n)
-    t2 = time.time() - start
-    print("n0: %d, standard: %f, strassen: %f, " % (n0, t1, t2), t2 <= t1)
-    n0 += 1
+    n = n0 + 1
+    mat1 = np.random.randint(low=l,high=h, size=(n, n))
+    mat2 = np.random.randint(low=l,high=h, size=(n, n))
+    stand_avg = 0
+    strat_avg = 0
+    for _ in range (5):
+      start = time.time()
+      standard_mult(mat1, mat2, n)
+      stand_avg += time.time() - start
+      start = time.time()
+      strassen(mat1, mat2, n)
+      strat_avg += time.time() - start
+    stand_avg /= 5
+    strat_avg /= 5
+    print("n0: %d, standard: %f, strassen: %f, " % (n0, stand_avg, strat_avg), strat_avg <= stand_avg)
     n += 1
 
 def gen_graph(p):
@@ -88,14 +93,22 @@ def gen_graph(p):
 def calc_triangles():
   for i in range (1, 6):
     print(gen_graph(i*.01))
-#print(find_n0())
 
 #print(standard_mult(m1, m2, dim))
 ans = strassen(m1, m2, dim)
 
-for i in range(dim): 
-  print(ans[i][i])
+if flag == 0:
+  for i in range(dim): 
+    print(ans[i][i])
 
-find_n0(1, 100)
-#calc_triangles()
+if flag == 1:   
+  print("0, 1 matrices")
+  find_n0(1, 100, 0, 2)
+  print("0, 1, 2 matrices")
+  find_n0(1, 100, 0, 3)
+  print("-1, 0, 1 matrices")
+  find_n0(1, 100, -1, 1)
+
+if flag == 2: 
+  calc_triangles()
 
