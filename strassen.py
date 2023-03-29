@@ -3,7 +3,7 @@ import sys
 import time
 import random
 
-n0 = 97
+n0 = 25
 flag = int(sys.argv[1])
 dim = int(sys.argv[2])
 f = open(sys.argv[3], 'r') 
