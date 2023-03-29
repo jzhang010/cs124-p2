@@ -3,7 +3,7 @@ import sys
 import time
 import random
 
-n0 = 70
+n0 = 97
 flag = int(sys.argv[1])
 dim = int(sys.argv[2])
 f = open(sys.argv[3], 'r') 
@@ -90,6 +90,30 @@ def gen_graph(p):
     tot += a3[i][i]
   return tot / 6
 
+
+def test(n): 
+  global n0
+  mat1 = np.random.randint(2, size=(n, n))
+  mat2 = np.random.randint(2, size=(n, n))
+  start = time.time()
+  standard_mult(mat1, mat2, n)
+  t1 = time.time() - start
+  opt = n
+  best = -1
+  n0 = n
+  while n0 > 0: 
+    n0 = (n0 + 1) // 2
+    start = time.time()
+    strassen(mat1, mat2, n)
+    t2 = time.time() - start
+    print("n0: %d, standard: %f, strassen: %f, " % (n0, t1, t2), t2 <= t1)
+    if best != -1 and t2 > best or n0 == 1: 
+      break 
+    if t2 <= t1 and (best == -1 or t2 < best): 
+      best = t2
+      opt = n0
+  return opt
+
 def calc_triangles():
   for i in range (1, 6):
     print(gen_graph(i*.01))
@@ -112,3 +136,20 @@ if flag == 1:
 if flag == 2: 
   calc_triangles()
 
+if flag == 3: 
+  i = 2
+  while i <= 1024: 
+    print("size: %d, optimal: " % (i), test(i))
+    i *= 2
+  i = 3
+  while i <= 1024: 
+    print("size: %d, optimal: " % (i), test(i))
+    i *= 3
+  i = 5
+  while i <= 1024: 
+    print("size: %d, optimal: " % (i), test(i))
+    i *= 5
+  i = 25
+  while i <= 1024: 
+    print("size: %d, optimal: " % (i), test(i))
+    i = i*2 - 1
