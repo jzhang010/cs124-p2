@@ -3,11 +3,13 @@ import sys
 import time
 import random
 
-n0 = 25
+# Reads command line inputs
+n0 = 29
 flag = int(sys.argv[1])
 dim = int(sys.argv[2])
 f = open(sys.argv[3], 'r') 
 
+# Initializes and reads in input matrix elements
 m1 = np.empty([dim, dim], dtype=np.int32)
 m2 = np.empty([dim, dim], dtype=np.int32)
 
@@ -19,6 +21,7 @@ for i in range(dim):
   for j in range(dim): 
     m2[i][j] = f.readline() 
 
+# Calculates product of two matrices using Strassen's
 def strassen (m, n, d): 
   if d <= n0: 
     return standard_mult(m, n, d)
@@ -44,6 +47,7 @@ def strassen (m, n, d):
     P7 = strassen(C-A, E+F, new_d)
     return np.block([[-P2+P4+P5+P6, P1+P2], [P3+P4, P1-P3+P5+P7]])[:d,:d]
 
+# Calculates product of two matrices using standard matrix multiplcation 
 def standard_mult(m, n, d): 
   mn = np.zeros([d, d], dtype=np.int32)
   for i in range(d): 
@@ -52,6 +56,7 @@ def standard_mult(m, n, d):
         mn[i][j] += m[i][k] * n[k][j]
   return mn
 
+# Generates random graph and returns number of triangles
 def gen_graph(p):
   adj = np.zeros([1024, 1024])
   for i in range(1023):
@@ -59,7 +64,6 @@ def gen_graph(p):
       if random.uniform(0, 1) < p: 
         adj[i][j] = 1
         adj[j][i] = 1
-  print(adj)
   start = time.time()
   a2 = strassen(adj, adj, 1024)
   print(time.time() - start)
@@ -70,7 +74,43 @@ def gen_graph(p):
     tot += a3[i][i]
   return tot / 6
 
+# Gives the number of triangles for all of the different graphs
+def calc_triangles():
+  for i in range (1, 6):
+    print(gen_graph(i*.01))
 
+# Returns if strassen is optimal for a range of dimensions 
+def find_n0(): 
+  global n0 
+  for n in range (1, 50): 
+    mat1 = np.random.randint(2, size=(n, n))
+    mat2 = np.random.randint(2, size=(n, n))
+    stand_avg = 0
+    strat_avg = 0
+    strat_opt = False
+    for _ in range (5):
+      start = time.time()
+      standard_mult(mat1, mat2, n)
+      stand_avg += time.time() - start
+    stand_avg /= 5
+    min = stand_avg
+    n0 = (n + 1) // 2
+    while n0 > 1: 
+      strat_avg = 0
+      for _ in range (5): 
+        start = time.time()
+        strassen(mat1, mat2, n)
+        strat_avg += time.time() - start
+      strat_avg /= 5
+      if strat_avg > min and min != stand_avg:
+        break
+      if (strat_avg < min):
+        strat_opt = True
+        break 
+      n0 = (n0 + 1) // 2
+    print("n: %d, strassen optimal: " % (n), strat_opt)
+
+# Finds the optimal range for n0 given n
 def test(n): 
   global n0
   mat1 = np.random.randint(2, size=(n, n))
@@ -94,13 +134,10 @@ def test(n):
       opt = n0
   return opt
 
-def calc_triangles():
-  for i in range (1, 6):
-    print(gen_graph(i*.01))
-
 #print(standard_mult(m1, m2, dim))
 ans = strassen(m1, m2, dim)
 
+# Print output of matrix product
 if flag == 0:
   for i in range(dim): 
     print(ans[i][i])
@@ -118,10 +155,9 @@ if flag == 1:
   while i <= 1024: 
     print("size: %d, optimal: " % (i), test(i))
     i *= 5
-  i = 25
-  while i <= 1024: 
-    print("size: %d, optimal: " % (i), test(i))
-    i = i*2 - 1
 
-  if flag == 2: 
-    calc_triangles()
+if flag == 2: 
+  find_n0()
+
+if flag == 3: 
+  calc_triangles()
